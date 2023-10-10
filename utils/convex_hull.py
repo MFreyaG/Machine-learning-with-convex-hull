@@ -1,8 +1,11 @@
+from entities.point import Point
+from utils.tools import Tools
+
 class ConvexHull:
     def __init__(self, point_set):
         self.point_set = point_set
         self.hull = []
-        self.utils = Utils
+        self.tools = Tools
         
     def find_ancor(self):
         ancor = self.point_set[0]
@@ -15,7 +18,7 @@ class ConvexHull:
     
     def find_next_point(self, p, q):
         for point in self.point_set:
-            if self.utils.find_orientation(p,q,point) == 1:
+            if self.tools.find_orientation(p,q,point) == 1:
                 q = point
         
         return q
