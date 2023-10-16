@@ -17,22 +17,34 @@ class HullInterception:
             bigger = p1 if smaller == p2 else p2
             
             smaller.set_hull_details(1, seg_value)
-            bigger.set_hull_details(1, seg_value)
             
             segments.append(Segment(smaller, bigger))
             seg_value += 1
-        
+        # Adding final segment
+        last_hull_1 = hull_1[len(hull_1)-1]
+        smaller = last_hull_1 if last_hull_1.x < hull_1[0].x else hull_1[0]
+        bigger = last_hull_1 if smaller == hull_1[0] else hull_1[0]
+        segments.append(Segment(hull_1[0], last_hull_1))
+        last_hull_1.set_hull_details(1, seg_value)
+        seg_value += 1
+            
         # Going thorugh hull 2
         for p1, p2 in zip(hull_2, hull_2[1:]):
             smaller = p1 if p1.x < p2.x else p2
             bigger = p1 if smaller == p2 else p2
             
             smaller.set_hull_details(2, seg_value)
-            bigger.set_hull_details(2, seg_value)
             
             segments.append(Segment(smaller, bigger))
             seg_value += 1
-            
+        # Adding final segment
+        last_hull_2 = hull_2[len(hull_2)-1]
+        smaller = last_hull_2 if last_hull_2.x < hull_2[0].x else hull_2[0]
+        bigger = last_hull_2 if smaller == hull_2[0] else hull_2[0]
+        segments.append(Segment(smaller, bigger))
+        last_hull_2.set_hull_details(2, seg_value)
+        seg_value += 1
+        
         return segments
     
     
@@ -41,9 +53,7 @@ class HullInterception:
         tree = AVLTree()
         
         for p in points:
-            # Find which hull if belongs to
             p_segment = segments[p.tuple_index]
-            breakpoint()
             # if point regards left side of segment
             if p == p_segment.smaller:
                 tree.insert_node(p_segment)

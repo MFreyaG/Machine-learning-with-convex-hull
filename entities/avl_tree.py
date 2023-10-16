@@ -86,7 +86,6 @@ class AVLTree:
         self._find_successor(self.my_root, key)
         
     def _find_successor(self, root, key):
-        breakpoint()
         if not root:
             return None
 
