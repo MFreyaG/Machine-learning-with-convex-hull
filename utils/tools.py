@@ -1,4 +1,5 @@
 from entities.point import Point
+from entities.segment import Segment
 
 class Tools:
     @classmethod
@@ -13,12 +14,12 @@ class Tools:
             return -1
     
     @classmethod
-    def do_segments_intercept(cls, s1, s2):
-        if s1[0] == s2[0] or s1[0] == s1[1] or s1[1] == s2[0] or s1[1] == s2[1]:
+    def do_segments_intercept(cls, s1: Segment, s2: Segment):
+        if s1.smaller == s2.smaller or s1.smaller == s1.greater or s1.smaller == s2.greater or s1.smaller == s2.greater:
             return True
         
-        orientation_1 = cls.find_orientation(s2[1],s2[0],s1[1])
-        orientation_2 = cls.find_orientation(s2[1],s2[0],s1[0])
+        orientation_1 = cls.find_orientation(s2.greater,s2.smaller,s1.greater)
+        orientation_2 = cls.find_orientation(s2.greater,s2.smaller,s1.smaller)
         if orientation_1 == orientation_2:
             return False
         return True

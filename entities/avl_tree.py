@@ -18,7 +18,7 @@ class AVLTree:
         if self.my_root is None:
             self.my_root = Node(key)
         else:
-            self._insert_node(self.my_root, key)
+            return self._insert_node(self.my_root, key)
     
     
     # Key is tuple regarding point coordinates (x,y) 
@@ -56,19 +56,16 @@ class AVLTree:
     def find_predecessor(self, key: Segment):
         if self.my_root is None:
             return None
-        self._find_predecessor(self.my_root, key)
+        return self._find_predecessor(self.my_root, key)
     
     def _find_predecessor(self, root, key):
-        if not root:
-            return None
-
         predecessor = None
 
         while root:
-            if key > root.key:
+            if root.key < key:
                 predecessor = root
                 root = root.right
-            elif key < root.key:
+            elif root.key > key:
                 root = root.left
             else:
                 # Node with the given key found
@@ -83,19 +80,16 @@ class AVLTree:
     def find_successor(self, key: Segment):
         if self.my_root is None:
             return None
-        self._find_successor(self.my_root, key)
+        return self._find_successor(self.my_root, key)
         
     def _find_successor(self, root, key):
-        if not root:
-            return None
-
         successor = None
-
+        
         while root:
-            if key < root.key:
+            if root.key > key:
                 successor = root
                 root = root.left
-            elif key > root.key:
+            elif root.key < key:
                 root = root.right
             else:
                 # Node with the given key found
@@ -110,7 +104,7 @@ class AVLTree:
     def delete_node(self, key: Segment):
         if self.my_root is None:
             return None
-        self._delete_node(self.my_root, key)
+        return self._delete_node(self.my_root, key)
     
     def _delete_node(self, root, key):
         # Find the node to be deleted and remove it
@@ -129,7 +123,7 @@ class AVLTree:
                 temp = root.left
                 root = None
                 return temp
-            temp = self.getMinValueNode(root.right)
+            temp = self._get_min_value_node(root.right)
             root.key = temp.key
             root.right = self._delete_node(root.right, temp.key)
         if root is None:
@@ -210,7 +204,7 @@ class AVLTree:
             return None
         
         if node.left:
-            return self._get_min_value_node(self, node.left)
+            return self._get_min_value_node(node.left)
         else:
             return node
         
@@ -219,6 +213,6 @@ class AVLTree:
             return None
         
         if node.left:
-            return self._get_min_value_node(self, node.left)
+            return self._get_max_value_node(node.left)
         else:
             return node
