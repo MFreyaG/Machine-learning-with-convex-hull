@@ -6,8 +6,19 @@ class Segment:
         self.greater = greater
         
     def get_y_for_x(self, x):
-        gradient = (self.greater.y-self.smaller.y)/(self.greater.x-self.smaller.x)
-        c = self.greater.y + gradient*self.greater.x
+        # Treat x out of range - How can I treat this better?
+        if x < self.smaller.x or x > self.greater.x:
+            return 0
+        
+        # Treat vertical line
+        if x == self.smaller.x:
+                return min(self.smaller.y, self.greater.y)
+        
+        try:
+            gradient = (self.greater.y-self.smaller.y)/(self.greater.x-self.smaller.x)
+            c = self.greater.y + gradient*self.greater.x
+        except:
+            raise Exception()
         
         return gradient*x + c
         

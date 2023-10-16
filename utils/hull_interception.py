@@ -1,7 +1,8 @@
-import bintrees
-
-from tools import Tools
 from entities.segment import Segment
+from entities.avl_tree import AVLTree
+
+from utils.tools import Tools
+
 
 class HullInterception:
     # Hull data comes in as [P1,P2,...,Pn], where PiPi+1 is a segment
@@ -15,10 +16,10 @@ class HullInterception:
             smaller = p1 if p1.x < p2.x else p2
             bigger = p1 if smaller == p2 else p2
             
-            smaller.set_hull_details(1, seg_value, 1)
-            bigger.set_hull_details(1, seg_value, 0)
+            smaller.set_hull_details(1, seg_value)
+            bigger.set_hull_details(1, seg_value)
             
-            segments.append((smaller, bigger))
+            segments.append(Segment(smaller, bigger))
             seg_value += 1
         
         # Going thorugh hull 2
@@ -26,8 +27,8 @@ class HullInterception:
             smaller = p1 if p1.x < p2.x else p2
             bigger = p1 if smaller == p2 else p2
             
-            smaller.set_hull_details(2, seg_value, 1)
-            bigger.set_hull_details(2, seg_value, 0)
+            smaller.set_hull_details(2, seg_value)
+            bigger.set_hull_details(2, seg_value)
             
             segments.append(Segment(smaller, bigger))
             seg_value += 1
@@ -37,15 +38,15 @@ class HullInterception:
     
     @classmethod
     def do_hulls_intercept(cls, segments: list, points: list):
-        tree = bintrees.RBTree()
+        tree = AVLTree()
         
         for p in points:
             # Find which hull if belongs to
-            
+            p_segment = segments[p.tuple_index]
+            breakpoint()
             # if point regards left side of segment
-            if p.is_leftmost:
-                p_segment = segments[p.tuple_index]
-                tree.insert(p_segment)
+            if p == p_segment.smaller:
+                tree.insert_node(p_segment)
                 
                 # Should I keep a record of already made comparisons?
                 predecessor = tree.find_predecessor(p_segment)
@@ -55,21 +56,21 @@ class HullInterception:
                             return True
                 
                 # Check successor interception        
-                successor = tree.find_successor(p.y)
+                successor = tree.find_successor(p_segment)
                 if successor:
                     if successor.hull_id != p.hull_id:
                         if Tools.do_segments_intercept(p_segment, segments[successor.tuple_index]):
                             return True
             else:
                 # Check if predecessor and successor intercept
-                predecessor = tree.find_predecessor(p.y)     
-                successor = tree.find_successor(p.y)
+                predecessor = tree.find_predecessor(p_segment)     
+                successor = tree.find_successor(p_segment)
                 if predecessor and successor and predecessor.hull_id != successor.hull_id:
                     if Tools.do_segments_intercept(
                         segments[predecessor.tuple_index], segments[successor.tuple_index]
                     ):
                         return True
                         
-                tree.remove_node(p)
+                tree.delete_node(p_segment)
         return False
                 
