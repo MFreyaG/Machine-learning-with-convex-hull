@@ -213,6 +213,6 @@ class AVLTree:
             return None
         
         if node.left:
-            return self._get_max_value_node(node.left)
+            return self._get_max_value_node(node.right)
         else:
             return node

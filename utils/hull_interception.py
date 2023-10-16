@@ -55,6 +55,7 @@ class HullInterception:
         # Check predecessor interception
         predecessor = tree.find_predecessor(my_segment)
         if predecessor:
+            
             if predecessor.key.smaller.hull_id != my_segment_hull:
                 if Tools.do_segments_intercept(my_segment, segments[predecessor.key.smaller.starting_index[0]]):
                     return True
