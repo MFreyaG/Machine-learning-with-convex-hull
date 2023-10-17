@@ -7,12 +7,12 @@ hull_interception = HullInterception()
 
 # Find hull - Grands
 # hull_1 = [Point(0,0), Point(0.5,2), Point(1,0)]
-hull_1 = [Point(3,0), Point(2.6,1.8), Point(2,1)]
-hull_2 = [Point(1.5,2), Point(2,0), Point(2.5,2)]
+hull_1 = [Point(1,0), Point(3,0), Point(2,4)]
+hull_2 = [Point(0,4), Point(0.9,0), Point(1.9,4)]
 
 # Now we'll create 'segments' lists and the 'hull' list; both of them will be used
 segments = hull_interception.create_hull_segments(hull_1, hull_2)
-
+breakpoint()
 # Now we'll sort the hull points
 points = hull_1 + hull_2
 Tools.hullsort(points)

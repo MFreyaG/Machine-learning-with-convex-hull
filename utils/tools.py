@@ -3,6 +3,17 @@ from entities.segment import Segment
 
 class Tools:
     @classmethod
+    def find_rightmost_point_in_hull(cls, hull :list[Point]):
+        rightmost = hull[0]
+        
+        for point in hull:
+            if point.x > rightmost.x or (point.x == rightmost.x and point.y > rightmost.y):
+                rightmost = point
+        
+        return rightmost
+    
+    
+    @classmethod
     def find_orientation(cls, p1: Point, p2: Point, p3: Point):
         cross_product = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y)
 

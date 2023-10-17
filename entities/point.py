@@ -6,6 +6,8 @@ class Point:
         self.y = y
         self.is_anchor = False
         self.is_final = False
+        self.starting_index = []
+        self.final_index = []
         
     def print_coordinates(self):
         print(f'({self.x},{self.y})')
@@ -15,9 +17,9 @@ class Point:
     def set_hull_details(self, hull_id, tuple_index, is_start):
         self.hull_id = hull_id
         if is_start:
-            self.starting_index = [tuple_index]
+            self.starting_index.append(tuple_index)
         else:
-            self.final_index = [tuple_index]
+            self.final_index.append(tuple_index)
     
     # If point is anchor, add another index and set its bool to True
     def set_anchor_segment(self, second_index):
@@ -28,4 +30,3 @@ class Point:
     def set_final_segment(self, second_index):
         self.is_final = True
         self.final_index.append(second_index)
-    

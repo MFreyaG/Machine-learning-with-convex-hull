@@ -24,9 +24,25 @@ class Segment:
         
     # Comparison for tree insertion
     def __gt__(self, other):
-        if other.smaller.y >= self.get_y_for_x(other.smaller.x):
-            return False
+        eps = 1e-6
+        my_y_value = self.get_y_for_x(other.smaller.x)
+        
+        if other.smaller.y >= my_y_value:
+            if abs(other.smaller.y - my_y_value) > eps:
+                #print(f"{other.smaller.x, other.smaller.y}: {other.greater.x, other.greater.y} is greater than {self.smaller.x,self.smaller.y}: {self.greater.x, self.greater.y}")
+                return False
+        #print(f"{other.smaller.x, other.smaller.y}: {other.greater.x, other.greater.y} is smaller than {self.smaller.x,self.smaller.y}: {self.greater.x, self.greater.y}")
         return True
         
     def __eq__(self, other):
-        return self.smaller == other.smaller and self.greater == other.greater
+        epsilon = 1e-6
+
+        if (
+            abs(self.smaller.x - other.smaller.x) < epsilon
+            and abs(self.smaller.y - other.smaller.y) < epsilon
+            and abs(self.greater.x - other.greater.x) < epsilon
+            and abs(self.greater.y - other.greater.y) < epsilon
+        ):
+            return True
+        return False
+        

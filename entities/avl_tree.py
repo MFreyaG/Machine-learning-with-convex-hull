@@ -1,7 +1,7 @@
 from entities.segment import Segment
 
 class Node:
-    def __init__(self, segment :Segment):
+    def __init__(self, segment: Segment):
         self.key = segment
         self.left = None
         self.right = None
@@ -62,10 +62,10 @@ class AVLTree:
         predecessor = None
 
         while root:
-            if root.key < key:
+            if  key > root.key:
                 predecessor = root
                 root = root.right
-            elif root.key > key:
+            elif key < root.key:
                 root = root.left
             else:
                 # Node with the given key found
@@ -86,10 +86,10 @@ class AVLTree:
         successor = None
         
         while root:
-            if root.key > key:
+            if key < root.key:
                 successor = root
                 root = root.left
-            elif root.key < key:
+            elif key > root.key:
                 root = root.right
             else:
                 # Node with the given key found
@@ -110,6 +110,7 @@ class AVLTree:
         # Find the node to be deleted and remove it
         if not root:
             return root
+        
         elif key < root.key:
             root.left = self._delete_node(root.left, key)
         elif key > root.key:
@@ -216,3 +217,14 @@ class AVLTree:
             return self._get_max_value_node(node.right)
         else:
             return node
+        
+        
+    # Debug
+    def print_tree(self):
+        self._print_tree(self.my_root, 0)
+
+    def _print_tree(self, node, level):
+        if node is not None:
+            self._print_tree(node.right, level + 1)
+            print(" " * 10 * level + "->", f'{node.key.smaller.x}, {node.key.smaller.y}: {node.key.greater.x}, {node.key.greater.y}')  # Adjust spacing as needed
+            self._print_tree(node.left, level + 1)
