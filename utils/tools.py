@@ -10,3 +10,9 @@ class Tools:
             return 1
         else:
             return -1
+    
+    def point_to_list(set: [Point]):
+      x_list = [point.x for point in set]
+      y_list = [point.y for point in set]
+
+      return (x_list, y_list)
