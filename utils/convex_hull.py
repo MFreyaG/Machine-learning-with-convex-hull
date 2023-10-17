@@ -51,6 +51,8 @@ class ConvexHull:
             
             if current.x == self.hull[0].x and current.y == self.hull[0].y:
                 break
+            
+        return self.hull
         
     def print_convex_hull(self):
         for point in self.hull:
