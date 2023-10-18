@@ -38,7 +38,7 @@ class HullInterception:
     
     
     def _create_hull_segments(self, hull: list[Point], hull_id, seg_value, segments):
-        final_index, seg_value = self._treat_final_point_in_hull(hull, 1, segments, seg_value)
+        final_index, seg_value = self._treat_final_point_in_hull(hull, hull_id, segments, seg_value)
         
         # Copy hull and remove "final" point
         hull_copy = hull.copy()
@@ -46,7 +46,6 @@ class HullInterception:
         
         # Go through points
         for p1, p2 in zip(hull_copy, hull_copy[1:]):
-            print(f'Entered {hull_id}')
             if seg_value not in p1.starting_index:
                 p1.set_hull_details(hull_id, seg_value, 1)
             if seg_value not in p2.final_index:
@@ -57,9 +56,12 @@ class HullInterception:
             
         # Set initial point, if isn't set
         if not hull[0].is_anchor:
-            print("entered")
             segments.append(Segment(hull[0], hull[len(hull)-1]))
             hull[0].set_anchor_segment(seg_value)
+            
+        # Gambiarra - Set last point in hull array as final]
+        last_point = hull_copy[len(hull_copy)-1]
+        last_point.set_final_segment(hull_copy[0].starting_index[1])
             
         return seg_value
         
