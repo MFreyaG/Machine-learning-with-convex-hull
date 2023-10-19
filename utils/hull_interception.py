@@ -6,73 +6,66 @@ from utils.tools import Tools
 
 
 class HullInterception:
-    # Gambiarra - mas funciona?
-    def _treat_final_point_in_hull(self, my_hull: list[Point], my_hull_id, segments, seg_value):
-        hull_rightmost = Tools.find_rightmost_point_in_hull(my_hull)
-        rightmost_index = my_hull.index(hull_rightmost)
+    def _create_hull_segments(self, segments :list[Segment], index_count, hull_id, hull_points: list[Point], ordered_points: list[Point]):
+        print(f"Starting hull {hull_id}")
+        # Treating the initial point and its peers
+        ## "0" is always segment from anchor to next counter clockwise point, "1" is anchor to clockwise next point 
+        initial_point = ordered_points[0]
         
-        hull_rightmost.set_hull_details(my_hull_id, seg_value, 0)
-        seg_value += 1
-        hull_rightmost.set_final_segment(seg_value)
+        initial_point.set_anchor_segment(hull_id, index_count, hull_points[1], index_count+1, hull_points[-1])
+        hull_points[1].set_hull_details(hull_id, index_count, initial_point, 0)
+        hull_points[-1].set_hull_details(hull_id, index_count+1, initial_point, 0)
         
-        # If rightmost point is last one
-        if rightmost_index == len(my_hull)-1:
-            segments.append(Segment(my_hull[len(my_hull) - 2], hull_rightmost))
-            segments.append(Segment(my_hull[0], hull_rightmost))
+        print(f"Adding initial segment {initial_point.x, initial_point.y} -> {hull_points[1].x, hull_points[1].y} @ index {index_count}")
+        print(f"Adding initial segment {initial_point.x, initial_point.y} -> {hull_points[-1].x, hull_points[-1].y} @ index {index_count+1}")
+        
+        segments.append(Segment(initial_point, hull_points[1]))
+        segments.append(Segment(initial_point, hull_points[-1]))
+        index_count += 2
+                
+        # Treating final point and its peers
+        ## "2" is segment from final point to next clockwise point, "3" is final point to clockwise next point 
+        final_point = ordered_points[-1]
+        final_point_index = hull_points.index(final_point)
+        
+        hull_points[final_point_index-1].set_hull_details(hull_id, index_count, final_point, 1)
+        print(f"Adding final segment {hull_points[final_point_index-1].x,hull_points[final_point_index-1].y} -> {final_point.x, final_point.y} @ index {index_count}")
+        segments.append(Segment(hull_points[final_point_index-1], final_point))
+        index_count += 1
+        
+        if hull_points[-1] != final_point:
+            hull_points[final_point_index+1].set_hull_details(hull_id, index_count, final_point, 1)
+            final_point.set_final_segment(hull_id, index_count, hull_points[final_point_index-1], index_count+1, hull_points[final_point_index+1])
+            print(f"Adding final segment {hull_points[final_point_index+1].x,hull_points[final_point_index+1].y} -> {final_point.x, final_point.y} @ index {index_count}")
+            segments.append(Segment(hull_points[final_point_index+1], final_point))
+            index_count += 1
+        
+        # We'll ignore hull starting and final points' segment insertion by checking variable "initialised" in next step!
+        
+        # Going through other hull points
+        for p1, p2 in zip(hull_points, hull_points[1:]):
+            both = 0
+            if not p1.initialised and not p2.initialised and p2 not in [neighbor[1] for neighbor in p1.starting_index]:
+                print(f"Adding start of segment in p1 {p1.x, p1.y} -> {p2.x, p2.y} @ id {index_count}")
+                p1.set_hull_details(hull_id, index_count, p2, 1)
+                both += 1
+            if not p2.initialised and not p1.initialised and p1 not in [neighbor[1] for neighbor in p2.final_index]:
+                print(f"Adding end of segment in p2 {p1.x, p1.y} -> {p2.x, p2.y} @ id {index_count}")
+                p2.set_hull_details(hull_id, index_count, p1, 0)
+                both += 1
+            if both == 2:
+                print(f"Adding segment {p1.x, p1.y} -> {p2.x, p2.y} @ index {index_count}")
+                segments.append(Segment(p1, p2))
             
-            # Treat other points
-            my_hull[len(my_hull) - 2].set_hull_details(my_hull_id, seg_value-1, 1)
-            my_hull[0].set_anchor_segment(seg_value)
-        else:
-            segments.append(Segment(my_hull[rightmost_index-1], my_hull[rightmost_index]))
-            segments.append(Segment(my_hull[rightmost_index+1], my_hull[rightmost_index]))
-            
-            if my_hull[rightmost_index-1] == my_hull[0]:
-                my_hull[0].set_anchor_segment(seg_value-1)
-            else:
-                my_hull[rightmost_index-1].set_hull_details(my_hull_id, seg_value-1, 1)
-            my_hull[rightmost_index+1].set_hull_details(my_hull_id, seg_value, 1)
-            
-        seg_value += 1
-        return rightmost_index, seg_value
+            if both != 0:
+                index_count += 1
     
-    
-    def _create_hull_segments(self, hull: list[Point], hull_id, seg_value, segments):
-        final_index, seg_value = self._treat_final_point_in_hull(hull, hull_id, segments, seg_value)
-        
-        # Copy hull and remove "final" point
-        hull_copy = hull.copy()
-        del hull_copy[final_index]
-        
-        # Go through points
-        for p1, p2 in zip(hull_copy, hull_copy[1:]):
-            if seg_value not in p1.starting_index:
-                p1.set_hull_details(hull_id, seg_value, 1)
-            if seg_value not in p2.final_index:
-                p2.set_hull_details(hull_id, seg_value, 0)
-            
-            segments.append(Segment(p1, p2))
-            seg_value += 1
-            
-        # Set initial point, if isn't set
-        if not hull[0].is_anchor:
-            segments.append(Segment(hull[0], hull[len(hull)-1]))
-            hull[0].set_anchor_segment(seg_value)
-            
-        # Gambiarra - Set last point in hull array as final]
-        last_point = hull_copy[len(hull_copy)-1]
-        last_point.set_final_segment(hull_copy[0].starting_index[1])
-            
-        return seg_value
-        
-    
-    # Hull data comes in as [P1,P2,...,Pn], where PiPi+1 is a segment
-    def create_hull_segments(self, hull_1: list[Point], hull_2: list[Point]):
-        seg_value = 0
+    def create_hull_segments(self, hull_1, hull_1_orered, hull_2, hull_2_ordered):
         segments = []
+        index_count = 0
         
-        seg_value = self._create_hull_segments(hull_1, 1, seg_value, segments)
-        seg_value = self._create_hull_segments(hull_2, 2, seg_value, segments)
+        self._create_hull_segments(segments, index_count, 1, hull_1, hull_1_orered)
+        self._create_hull_segments(segments, index_count, 2, hull_2, hull_2_ordered)
         
         return segments
     
@@ -105,27 +98,27 @@ class HullInterception:
             print(f'Starting point {p.__dict__}')
             # Adding starting segment if p has one
             if not p.is_final:
-                print(f'Adding segment: {segments[p.starting_index[0]].smaller.x}, {segments[p.starting_index[0]].smaller.y} -> {segments[p.starting_index[0]].greater.x}, {segments[p.starting_index[0]].greater.y}')
+                print(f'Adding segment: {segments[p.starting_index[0][0]].smaller.x}, {segments[p.starting_index[0][0]].smaller.y} -> {segments[p.starting_index[0][0]].greater.x}, {segments[p.starting_index[0][0]].greater.y}')
           
-                if self._check_interception(tree, segments[p.starting_index[0]], segments):
+                if self._check_interception(tree, segments[p.starting_index[0][0]], segments):
                     return True
 
             # If point is anchor, add 2nd segment. Else, it has a segment we should delete
             if p.is_anchor:
-                print(f'Adding segment {segments[p.starting_index[1]].smaller.x}, {segments[p.starting_index[1]].smaller.y} -> {segments[p.starting_index[1]].greater.x}, {segments[p.starting_index[1]].greater.y}')      
+                print(f'Adding segment {segments[p.starting_index[1][0]].smaller.x}, {segments[p.starting_index[1][0]].smaller.y} -> {segments[p.starting_index[1][0]].greater.x}, {segments[p.starting_index[1][0]].greater.y}')      
                 
-                if self._check_interception(tree, segments[p.starting_index[1]], segments):
+                if self._check_interception(tree, segments[p.starting_index[1][0]], segments):
                     return True
             else:
-                print(f'Deleting segment {segments[p.final_index[0]].smaller.x}, {segments[p.final_index[0]].smaller.y} -> {segments[p.final_index[0]].greater.x}, {segments[p.final_index[0]].greater.y}')
+                print(f'Deleting segment {segments[p.final_index[0][0]].smaller.x}, {segments[p.final_index[0][0]].smaller.y} -> {segments[p.final_index[0][0]].greater.x}, {segments[p.final_index[0][0]].greater.y}')
           
-                tree.delete_node(segments[p.final_index[0]])
+                tree.delete_node(segments[p.final_index[0][0]])
             
             # If point is the final point in hull, also delete 2nd segment
             if p.is_final:
-                print(f'Deleting segment {segments[p.final_index[1]].smaller.x}, {segments[p.final_index[1]].smaller.y} -> {segments[p.final_index[1]].greater.x}, {segments[p.final_index[1]].greater.y}')
+                print(f'Deleting segment {segments[p.final_index[1][0]].smaller.x}, {segments[p.final_index[1][0]].smaller.y} -> {segments[p.final_index[1][0]].greater.x}, {segments[p.final_index[1][0]].greater.y}')
                 
-                tree.delete_node(segments[p.final_index[1]])
+                tree.delete_node(segments[p.final_index[1][0]])
             
             print("Printing tree!")
             tree.print_tree()

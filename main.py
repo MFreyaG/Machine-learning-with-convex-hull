@@ -50,9 +50,26 @@ plt.show()
 
 hull_interception = HullInterception()
 
-# Now we'll create 'segments' lists and the 'hull' list; both of them will be used
-segments = hull_interception.create_hull_segments(new_hull_points1, new_hull_points2)
+ordered_hull_1 = new_hull_points1.copy()
+ordered_hull_2 = new_hull_points2.copy()
 
+Tools.hullsort(ordered_hull_1)
+Tools.hullsort(ordered_hull_2)
+
+# Now we'll create 'segments' lists and the 'hull' list; both of them will be used
+segments = hull_interception.create_hull_segments(new_hull_points1, ordered_hull_1, new_hull_points2, ordered_hull_2)
+
+print("Printing points hull 1")
+for p in ordered_hull_1:
+    if p.hull_id == 1:
+        print(p.__dict__)
+        
+print("Printing points hull 2")
+for p in ordered_hull_2:
+    if p.hull_id == 2:
+        print(p.__dict__)
+        
+breakpoint()
 
 # Now we'll sort the hull points
 points = new_hull_points1 + new_hull_points2
@@ -60,13 +77,3 @@ Tools.hullsort(points)
 
 # Checking if intercept
 print(hull_interception.do_hulls_intercept(segments, points))
-
-print("Printing points hull 1")
-for p in points:
-    if p.hull_id == 1:
-        print(p.__dict__)
-        
-print("Printing points hull 2")
-for p in points:
-    if p.hull_id == 2:
-        print(p.__dict__)
