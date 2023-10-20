@@ -84,8 +84,7 @@ class Tools:
         
         return p + 1
     
-    @classmethod
-    def point_to_list(cls, set: list[Point]):
+    def point_to_list(set: [Point]):
       x_list = [point.x for point in set]
       y_list = [point.y for point in set]
 
